@@ -20,6 +20,8 @@ class FractalClockView: ScreenSaverView {
     private var colourTime: Double = 0
     
     private var clockFrame: NSRect
+    private var clockPosition: CGPoint = .zero
+    private var clockVelocity: CGPoint = .zero
     
     // MARK: - Initialization
     override init?(frame: NSRect, isPreview: Bool) {
@@ -33,7 +35,15 @@ class FractalClockView: ScreenSaverView {
         
         colourScheme = Array(repeating: NSColor(calibratedWhite: 1.0, alpha: 1.0), count: maximumDepth + 1)
         fractalPaths = Array(repeating: NSBezierPath(), count: maximumDepth + 1)
-        clockFrame = NSRect(x: frame.midX - frame.maxX / 8, y: frame.midY - frame.maxY / 8, width: frame.maxX / 4, height: frame.maxY / 4)
+        let clockSize = CGSize(width: frame.maxX / 4, height: frame.maxY / 4)
+        clockPosition = CGPoint(x: frame.midX, y: frame.midY)
+        let speed: Double = 0.5
+        let angle = Double.random(in: 0..<(2 * .pi))
+        clockVelocity = CGPoint(x: speed * cos(angle), y: speed * sin(angle))
+        clockFrame = NSRect(x: clockPosition.x - clockSize.width / 2,
+                            y: clockPosition.y - clockSize.height / 2,
+                            width: clockSize.width,
+                            height: clockSize.height)
         
         super.init(frame: frame, isPreview: isPreview)
         
@@ -69,6 +79,7 @@ class FractalClockView: ScreenSaverView {
         super.animateOneFrame()
         
         updateDefaults()
+        updatePosition()
         updateAngles()
         updateColours()
         setNeedsDisplay(bounds)
@@ -132,6 +143,27 @@ class FractalClockView: ScreenSaverView {
                 colourScheme.append(NSColor(calibratedHue: CGFloat(h), saturation: CGFloat(s), brightness: CGFloat(v), alpha: 1.0))
             }
         }
+    }
+    
+    func updatePosition() {
+        let clockRadius = clockFrame.width / 2
+        
+        clockPosition.x += clockVelocity.x
+        clockPosition.y += clockVelocity.y
+        
+        if clockPosition.x - clockRadius <= 0 || clockPosition.x + clockRadius >= bounds.width {
+            clockVelocity.x = -clockVelocity.x
+            clockPosition.x = max(clockRadius, min(bounds.width - clockRadius, clockPosition.x))
+        }
+        if clockPosition.y - clockRadius <= 0 || clockPosition.y + clockRadius >= bounds.height {
+            clockVelocity.y = -clockVelocity.y
+            clockPosition.y = max(clockRadius, min(bounds.height - clockRadius, clockPosition.y))
+        }
+        
+        clockFrame = NSRect(x: clockPosition.x - clockFrame.width / 2,
+                            y: clockPosition.y - clockFrame.height / 2,
+                            width: clockFrame.width,
+                            height: clockFrame.height)
     }
     
     // MARK: - Drawing Helpers
