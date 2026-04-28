@@ -127,9 +127,9 @@ class FractalClockView: ScreenSaverView {
             let s = 0.5 + 0.5 * r3 - 0.5 * (1.0 - a)
             let v = 0.3 + 0.5 * r1
             if (i == maximumDepth) {
-                colourScheme.append(NSColor(calibratedHue: CGFloat(h), saturation: 1.0, brightness: 1.0, alpha: 128.0))
+                colourScheme.append(NSColor(calibratedHue: CGFloat(h), saturation: 1.0, brightness: 1.0, alpha: 0.5))
             } else {
-                colourScheme.append(NSColor(calibratedHue: CGFloat(h), saturation: CGFloat(s), brightness: CGFloat(v), alpha: 255.0))
+                colourScheme.append(NSColor(calibratedHue: CGFloat(h), saturation: CGFloat(s), brightness: CGFloat(v), alpha: 1.0))
             }
         }
     }
@@ -361,9 +361,6 @@ class FractalClockView: ScreenSaverView {
     }
     
     override var configureSheet: NSWindow? {
-        if configSheetController.window == nil {
-            Bundle.main.loadNibNamed("Preferences", owner: self, topLevelObjects: nil)
-        }
         return configSheetController.window
     }
 }
